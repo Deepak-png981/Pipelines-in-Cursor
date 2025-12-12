@@ -1,0 +1,62 @@
+{
+  "name": "cursor-github-pipelines",
+  "displayName": "GitHub Pipelines for Cursor",
+  "description": "View GitHub Actions pipelines for the current repo and branch inside Cursor/VS Code.",
+  "version": "0.0.1",
+  "publisher": "your-name",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onView:githubPipelinesView",
+    "onCommand:githubPipelines.setToken",
+    "onCommand:githubPipelines.refresh"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "githubPipelines.setToken",
+        "title": "GitHub Pipelines: Set Access Token"
+      },
+      {
+        "command": "githubPipelines.refresh",
+        "title": "GitHub Pipelines: Refresh"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "githubPipelines",
+          "title": "Pipelines",
+          "icon": "media/pipelines.svg"
+        }
+      ]
+    },
+    "views": {
+      "githubPipelines": [
+        {
+          "id": "githubPipelinesView",
+          "name": "GitHub Pipelines",
+          "type": "webview"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "jszip": "^3.10.1"
+  }
+}
