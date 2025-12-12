@@ -13,3 +13,4 @@ tsconfig.lsif.json
 vscode*.d.ts
 .env
 out/
+cursor/
