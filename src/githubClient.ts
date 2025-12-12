@@ -24,10 +24,25 @@ export interface WorkflowJob {
   conclusion: string | null;
   started_at: string | null;
   completed_at: string | null;
+  steps?: WorkflowStep[];
 }
 
 export interface WorkflowJobsResponse {
   jobs: WorkflowJob[];
+}
+
+export interface WorkflowStep {
+  number: number;
+  name: string;
+  status: string | null;
+  conclusion: string | null;
+  started_at?: string | null;
+  completed_at?: string | null;
+}
+
+export interface RunLogFile {
+  path: string;
+  content: string;
 }
 
 export class GitHubClient {
@@ -136,6 +151,21 @@ export class GitHubClient {
     repo: string,
     runId: number
   ): Promise<string> {
+    const files = await this.downloadRunLogFiles(owner, repo, runId);
+    if (files.length === 0) {
+      return 'No textual logs were found in the GitHub Actions logs archive for this run.';
+    }
+
+    return files
+      .map((f) => `===== ${f.path} =====\n${f.content.trimEnd()}\n`)
+      .join('\n');
+  }
+
+  async downloadRunLogFiles(
+    owner: string,
+    repo: string,
+    runId: number
+  ): Promise<RunLogFile[]> {
     const token = await this.ensureToken();
     if (!token) {
       throw new Error('GitHub token is not configured');
@@ -167,22 +197,14 @@ export class GitHubClient {
     );
     logFileNames.sort();
 
-    const pieces: string[] = [];
+    const files: RunLogFile[] = [];
     for (const name of logFileNames) {
       const file = zip.file(name);
       if (!file) continue;
       const content = await file.async('string');
-      pieces.push(
-        `===== ${name} =====`,
-        content.trimEnd(),
-        '' // blank line separator
-      );
+      files.push({ path: name, content });
     }
 
-    if (pieces.length === 0) {
-      return 'No textual logs were found in the GitHub Actions logs archive for this run.';
-    }
-
-    return pieces.join('\n');
+    return files;
   }
 }
